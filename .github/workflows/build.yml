@@ -16,10 +16,10 @@ jobs:
       - name: Repository herunterladen
         uses: actions/checkout@v4
 
-      - name: Java 21 installieren
+      - name: Java 17 installieren
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Gradle 8.6 installieren

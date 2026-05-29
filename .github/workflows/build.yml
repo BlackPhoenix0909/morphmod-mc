@@ -22,21 +22,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Gradle Cache
-        uses: actions/cache@v4
+      - name: Gradle 8.6 installieren
+        uses: gradle/actions/setup-gradle@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Gradle Wrapper ausführbar machen
-        run: chmod +x gradlew
+          gradle-version: '8.6'
 
       - name: Mod bauen
-        run: ./gradlew build --no-daemon
+        run: gradle build --no-daemon
 
       - name: JAR als Artifact hochladen
         uses: actions/upload-artifact@v4
@@ -44,9 +36,3 @@ jobs:
           name: morphmod-jar
           path: build/libs/morphmod-*.jar
           if-no-files-found: error
-
-      - name: Bei Release automatisch veröffentlichen
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: build/libs/morphmod-*.jar

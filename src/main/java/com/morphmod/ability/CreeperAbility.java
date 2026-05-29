@@ -3,7 +3,7 @@ package com.morphmod.ability;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.explosion.ExplosionBehavior;
+import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +26,14 @@ public class CreeperAbility {
             e -> e != player && !(e instanceof ServerPlayerEntity));
 
         if (!near.isEmpty()) {
-            // 1.20.4 signature: createExplosion(Entity, DamageSource, ExplosionBehavior, Vec3d, float, boolean, ExplosionSourceType)
-            // Simplest working call: pass null for DamageSource+Behavior to use defaults
             world.createExplosion(
                 player,
                 null,
                 null,
-                player.getPos(),
+                player.getX(), player.getY(), player.getZ(),
                 3.0f,
                 false,
-                net.minecraft.world.explosion.ExplosionSourceType.MOB
+                World.ExplosionSourceType.MOB
             );
             cooldowns.put(id, COOLDOWN);
         }

@@ -7,8 +7,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -16,11 +14,10 @@ import net.minecraft.util.Formatting;
 public class MorphEventHandler {
 
     public static void register() {
-        // Listen for mob kills to unlock morphs
         ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register((world, entity, killedEntity) -> {
-            if (entity instanceof ServerPlayerEntity player && killedEntity instanceof LivingEntity living) {
-                EntityType<?> killedType = living.getType();
-                if (killedType == EntityType.PLAYER) return; // Don't unlock player morph via killing
+            if (entity instanceof ServerPlayerEntity player) {
+                EntityType<?> killedType = killedEntity.getType();
+                if (killedType == EntityType.PLAYER) return;
 
                 boolean alreadyUnlocked = MorphData.hasMorph(player.getUuid(), killedType);
                 MorphData.unlockMorph(player.getUuid(), killedType);
@@ -31,19 +28,16 @@ public class MorphEventHandler {
                         Text.literal("✦ Morph unlocked: ")
                             .formatted(Formatting.GOLD)
                             .append(Text.literal(mobName).formatted(Formatting.YELLOW)),
-                        true // action bar
+                        true
                     );
-                    // Sync unlock to client
                     MorphNetworkHandler.sendSyncToPlayer(player);
                 }
             }
         });
 
-        // Apply morph stats each tick
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 applyMorphStats(player);
-                // Tick special abilities
                 MobAbilityRegistry.tickAbilities(player);
             }
         });
@@ -51,7 +45,6 @@ public class MorphEventHandler {
 
     public static void applyMorphStats(ServerPlayerEntity player) {
         MorphData.getActiveMorphType(player.getUuid()).ifPresentOrElse(entityType -> {
-            // Apply max health from mob definition
             double mobHealth = MobAbilityRegistry.getMaxHealth(entityType);
             var maxHealthAttr = player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
             if (maxHealthAttr != null && maxHealthAttr.getBaseValue() != mobHealth) {
@@ -61,7 +54,6 @@ public class MorphEventHandler {
                 }
             }
         }, () -> {
-            // Reset to default player health
             var maxHealthAttr = player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
             if (maxHealthAttr != null && maxHealthAttr.getBaseValue() != 20.0) {
                 maxHealthAttr.setBaseValue(20.0);

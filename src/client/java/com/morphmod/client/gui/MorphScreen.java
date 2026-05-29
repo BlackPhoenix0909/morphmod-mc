@@ -53,7 +53,7 @@ public class MorphScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         // Dim background
-        renderBackground(context);
+        renderBackground(context, mouseX, mouseY, delta);
 
         // Draw chest background
         context.drawTexture(CHEST_GUI_TEXTURE, guiLeft, guiTop, 0, 0, GUI_WIDTH, GUI_HEIGHT);

@@ -3,7 +3,6 @@ package com.morphmod;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.morphmod.network.MorphNetworkHandler;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.command.argument.EntityTypeArgumentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.command.CommandManager;
@@ -17,7 +16,6 @@ public class MorphCommands {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 
-            // /morph <entity_type> - transform into a mob (requires unlock)
             dispatcher.register(CommandManager.literal("morph")
                 .then(CommandManager.argument("entity", StringArgumentType.string())
                     .executes(ctx -> {
@@ -27,14 +25,12 @@ public class MorphCommands {
                     })
                 )
                 .executes(ctx -> {
-                    // Open morph GUI
                     ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
                     MorphNetworkHandler.sendOpenGui(player);
                     return 1;
                 })
             );
 
-            // /morph unmorph - return to human
             dispatcher.register(CommandManager.literal("unmorph")
                 .executes(ctx -> {
                     ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
@@ -45,7 +41,6 @@ public class MorphCommands {
                 })
             );
 
-            // /morphgive <player> <entity> - admin command to give morph
             dispatcher.register(CommandManager.literal("morphgive")
                 .requires(src -> src.hasPermissionLevel(2))
                 .then(CommandManager.argument("entity", StringArgumentType.string())

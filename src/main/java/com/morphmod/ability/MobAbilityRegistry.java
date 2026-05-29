@@ -2,17 +2,11 @@ package com.morphmod.ability;
 
 import com.morphmod.MorphData;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Registry for mob-specific stats and abilities.
- * Each entry defines max health and attack damage for the morph,
- * plus a tick handler for special abilities.
- */
 public class MobAbilityRegistry {
 
     public record MobStats(double maxHealth, double attackDamage, AbilityTicker abilityTicker) {}
@@ -25,7 +19,7 @@ public class MobAbilityRegistry {
     private static final Map<EntityType<?>, MobStats> STATS = new HashMap<>();
 
     static {
-        // === Passive / Neutral ===
+        // Passive / Neutral
         register(EntityType.COW,          10.0, 2.0, null);
         register(EntityType.PIG,          10.0, 2.0, null);
         register(EntityType.SHEEP,        8.0,  2.0, null);
@@ -50,9 +44,9 @@ public class MobAbilityRegistry {
         register(EntityType.ALLAY,        10.0, 2.0, null);
         register(EntityType.SNIFFER,      14.0, 5.0, null);
         register(EntityType.CAMEL,        32.0, 2.0, null);
-        register(EntityType.ARMADILLO,    6.0,  2.0, null);
+        // ARMADILLO entfernt – nicht in MC 1.20.4
 
-        // === Hostile ===
+        // Hostile
         register(EntityType.ZOMBIE,       20.0, 3.0, null);
         register(EntityType.SKELETON,     20.0, 2.0, SkeletonAbility::tick);
         register(EntityType.CREEPER,      20.0, 3.0, CreeperAbility::tick);
@@ -77,14 +71,14 @@ public class MobAbilityRegistry {
         register(EntityType.VINDICATOR,   24.0, 8.0, null);
         register(EntityType.PILLAGER,     24.0, 4.0, null);
         register(EntityType.RAVAGER,      100.0, 12.0, null);
-        register(EntityType.VINNGER,      20.0, 6.0, null);
+        // VINNGER entfernt – Tippfehler
         register(EntityType.EVOKER,       24.0, 6.0, EvokerAbility::tick);
         register(EntityType.SHULKER,      30.0, 4.0, null);
         register(EntityType.GUARDIAN,     30.0, 6.0, null);
         register(EntityType.ELDER_GUARDIAN, 80.0, 8.0, null);
         register(EntityType.ENDERMITE,    4.0,  2.0, null);
 
-        // === Bosses ===
+        // Bosses
         register(EntityType.WARDEN,       500.0, 30.0, WardenAbility::tick);
         register(EntityType.ENDER_DRAGON, 200.0, 15.0, null);
         register(EntityType.WITHER,       300.0, 8.0,  WitherAbility::tick);

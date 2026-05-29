@@ -3,12 +3,13 @@ package com.morphmod.ability;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.explosion.Explosion;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Creeper: explodes when near enemies (without dying). Cooldown: 10 seconds. */
 public class CreeperAbility {
     private static final Map<UUID, Integer> cooldowns = new HashMap<>();
     private static final float TRIGGER_RANGE = 2.5f;
@@ -21,10 +22,12 @@ public class CreeperAbility {
 
         ServerWorld world = player.getServerWorld();
         List<LivingEntity> near = world.getEntitiesByClass(LivingEntity.class,
-            player.getBoundingBox().expand(TRIGGER_RANGE), e -> e != player && !(e instanceof ServerPlayerEntity));
+            player.getBoundingBox().expand(TRIGGER_RANGE),
+            e -> e != player && !(e instanceof ServerPlayerEntity));
+
         if (!near.isEmpty()) {
-            world.createExplosion(player, player.getX(), player.getY(), player.getZ(), 3.0f, false,
-                net.minecraft.world.explosion.Explosion.DestructionType.NONE);
+            world.createExplosion(player, player.getX(), player.getY(), player.getZ(),
+                3.0f, false, Explosion.DestructionType.KEEP);
             cooldowns.put(id, COOLDOWN);
         }
     }

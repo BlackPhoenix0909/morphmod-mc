@@ -12,6 +12,8 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.WaterAnimalEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +32,6 @@ public abstract class PlayerRendererMixin {
                                        VertexConsumerProvider vertexConsumers,
                                        int light,
                                        CallbackInfo ci) {
-        // Get morph for this player
         String morphId = MorphRenderState.getMorph(player.getUuid());
         if (morphId == null || morphId.equals("player")) return;
 
@@ -42,23 +43,61 @@ public abstract class PlayerRendererMixin {
             MinecraftClient mc = MinecraftClient.getInstance();
             EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
 
-            // Create a temporary entity of the mob type to render
             Entity fakeEntity = type.create(mc.world);
             if (fakeEntity == null) return;
 
-            // Position it where the player is
+            // --- Position & Rotation ---
             fakeEntity.setPos(player.getX(), player.getY(), player.getZ());
             fakeEntity.setYaw(player.getYaw());
             fakeEntity.setPitch(player.getPitch());
             fakeEntity.age = player.age;
 
-            // Render the mob entity instead of the player
+            // --- Animationszustand vom Player übertragen ---
+            if (fakeEntity instanceof LivingEntity fakeLiving) {
+
+                // Körper- und Kopfrotation synchronisieren
+                fakeLiving.bodyYaw     = player.bodyYaw;
+                fakeLiving.prevBodyYaw = player.prevBodyYaw;
+                fakeLiving.headYaw     = player.headYaw;
+                fakeLiving.prevHeadYaw = player.prevHeadYaw;
+
+                // Lauf-Animation (Bein-Schwingen)
+                fakeLiving.limbAnimator.setSpeed(player.limbAnimator.getSpeed());
+                fakeLiving.limbAnimator.pos   = player.limbAnimator.pos;
+
+                // Hurt-Zustand (Blinken bei Schaden)
+                fakeLiving.hurtTime    = player.hurtTime;
+                fakeLiving.deathTime   = player.deathTime;
+
+                // Schwimm-Animation
+                fakeLiving.setSwimming(player.isSwimming());
+
+                // Sneak-Pose weitergeben
+                fakeLiving.setPose(player.getPose());
+
+                // Wasser-/Flug-Tiere: in Wasser tauchen wenn Spieler im Wasser ist
+                if (fakeEntity instanceof WaterAnimalEntity waterFake) {
+                    waterFake.setTouchingWater(player.isTouchingWater());
+                }
+
+                // Velocity übertragen (wichtig für Flatter-/Flug-Animationen)
+                fakeLiving.setVelocity(player.getVelocity());
+                fakeLiving.prevX = player.prevX;
+                fakeLiving.prevY = player.prevY;
+                fakeLiving.prevZ = player.prevZ;
+
+                // On-Ground für Sprung-Animation
+                fakeLiving.setOnGround(player.isOnGround());
+            }
+
             dispatcher.render(fakeEntity, 0, 0, 0, yaw, tickDelta, matrices, vertexConsumers, light);
 
-            // Cancel normal player rendering
+            // Fake-Entity aufräumen damit kein Speicherleck entsteht
+            fakeEntity.discard();
+
             ci.cancel();
         } catch (Exception e) {
-            // If anything fails, fall back to normal player rendering
+            // Fallback: normales Player-Rendering
         }
     }
 }

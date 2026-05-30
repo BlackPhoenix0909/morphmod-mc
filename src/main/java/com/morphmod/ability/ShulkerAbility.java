@@ -1,19 +1,25 @@
 package com.morphmod.ability;
+
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.projectile.ShulkerBulletEntity;
-import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Box;
+
+import java.util.List;
+
 public class ShulkerAbility {
     public static void trigger(ServerPlayerEntity p) {
-        Vec3d look = p.getRotationVec(1.0f);
-        ShulkerBulletEntity bullet = new ShulkerBulletEntity(
-            p.getWorld(), null, p,
-            net.minecraft.util.math.Direction.UP
+        // Levitation auf alle Gegner in der Nähe (wie Shulker-Bullet Effekt)
+        Box box = p.getBoundingBox().expand(8.0);
+        List<LivingEntity> targets = p.getWorld().getEntitiesByClass(
+            LivingEntity.class, box, e -> e != p
         );
-        bullet.setPos(p.getX() + look.x * 2, p.getEyeY(), p.getZ() + look.z * 2);
-        p.getWorld().spawnEntity(bullet);
-        AbilityHelper.msg(p, "📦 Shulker Bullet!", Formatting.LIGHT_PURPLE);
+        for (LivingEntity e : targets) {
+            e.addStatusEffect(new StatusEffectInstance(StatusEffects.LEVITATION, 60, 1));
+        }
+        AbilityHelper.applyEffect(p, StatusEffects.RESISTANCE, 60, 1);
+        AbilityHelper.msg(p, "📦 Shulker Levitation!", Formatting.LIGHT_PURPLE);
     }
 }

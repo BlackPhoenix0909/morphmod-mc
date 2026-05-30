@@ -10,7 +10,8 @@ public class GhastAbility {
         Vec3d look = p.getRotationVec(1.0f);
         FireballEntity fireball = new FireballEntity(
             p.getWorld(), p,
-            look.x * 2, look.y * 2, look.z * 2
+            look.x * 2, look.y * 2, look.z * 2,
+            1  // explosion power
         );
         fireball.setPos(p.getX() + look.x * 2, p.getEyeY(), p.getZ() + look.z * 2);
         p.getWorld().spawnEntity(fireball);

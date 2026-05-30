@@ -10,8 +10,11 @@ public class EvokerAbility {
         for (int i = 0; i < 3; i++) {
             VexEntity vex = EntityType.VEX.create(p.getWorld());
             if (vex != null) {
-                vex.setPos(p.getX() + (Math.random()-0.5)*2, p.getY()+1, p.getZ() + (Math.random()-0.5)*2);
-                vex.setOwner(p);
+                vex.setPos(
+                    p.getX() + (Math.random() - 0.5) * 2,
+                    p.getY() + 1,
+                    p.getZ() + (Math.random() - 0.5) * 2
+                );
                 vex.setLifeTicks(20 * 30);
                 p.getWorld().spawnEntity(vex);
             }

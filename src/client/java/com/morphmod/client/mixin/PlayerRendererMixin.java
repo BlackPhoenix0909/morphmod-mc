@@ -13,7 +13,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.WaterAnimalEntity;
+import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -76,7 +76,7 @@ public abstract class PlayerRendererMixin {
                 fakeLiving.setPose(player.getPose());
 
                 // Wasser-/Flug-Tiere: in Wasser tauchen wenn Spieler im Wasser ist
-                if (fakeEntity instanceof WaterAnimalEntity waterFake) {
+                if (fakeEntity instanceof WaterCreatureEntity waterFake) {
                     waterFake.setTouchingWater(player.isTouchingWater());
                 }
 

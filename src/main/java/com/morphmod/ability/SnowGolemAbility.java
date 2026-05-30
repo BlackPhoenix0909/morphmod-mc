@@ -1,10 +1,10 @@
 package com.morphmod.ability;
-import net.minecraft.entity.projectile.SnowballEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+
+import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
+
 public class SnowGolemAbility {
     public static void trigger(ServerPlayerEntity p) {
         Vec3d look = p.getRotationVec(1.0f);

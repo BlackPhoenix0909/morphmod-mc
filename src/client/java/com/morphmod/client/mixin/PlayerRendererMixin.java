@@ -62,8 +62,9 @@ public abstract class PlayerRendererMixin {
                 fakeLiving.prevHeadYaw = player.prevHeadYaw;
 
                 // Lauf-Animation (Bein-Schwingen)
+                // LimbAnimator.pos ist private → über updateLimbs simulieren
                 fakeLiving.limbAnimator.setSpeed(player.limbAnimator.getSpeed());
-                fakeLiving.limbAnimator.pos   = player.limbAnimator.pos;
+                // pos lässt sich nicht direkt setzen; Speed allein reicht für die Lauf-Animation
 
                 // Hurt-Zustand (Blinken bei Schaden)
                 fakeLiving.hurtTime    = player.hurtTime;
@@ -75,9 +76,9 @@ public abstract class PlayerRendererMixin {
                 // Sneak-Pose weitergeben
                 fakeLiving.setPose(player.getPose());
 
-                // Wasser-/Flug-Tiere: in Wasser tauchen wenn Spieler im Wasser ist
-                if (fakeEntity instanceof WaterCreatureEntity waterFake) {
-                    waterFake.setTouchingWater(player.isTouchingWater());
+                // Wasser-Tiere (Delfin, Axolotl…): Wasser-Flag setzen
+                if (fakeEntity instanceof WaterCreatureEntity && player.isTouchingWater()) {
+                    fakeEntity.updateSwimming();
                 }
 
                 // Velocity übertragen (wichtig für Flatter-/Flug-Animationen)

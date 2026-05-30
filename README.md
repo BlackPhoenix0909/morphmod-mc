@@ -109,7 +109,7 @@ Kill a mob → you permanently unlock that morph. A message confirms the unlock.
 ## 🔨 Building from Source
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/morphmod-mc
+git clone https://github.com/BlackPhoenix0909/morphmod-mc
 cd morphmod-mc
 gradle build --no-daemon
 ```

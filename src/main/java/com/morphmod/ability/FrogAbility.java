@@ -1,12 +1,10 @@
 package com.morphmod.ability;
-
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Formatting;
-
-public class ChickenAbility {
+public class FrogAbility {
     public static void trigger(ServerPlayerEntity p) {
-        AbilityHelper.applyEffect(p, StatusEffects.SLOW_FALLING, 100, 0);
-        AbilityHelper.msg(p, "🐔 Flap! Slow falling!", Formatting.YELLOW);
+        AbilityHelper.applyEffect(p, StatusEffects.JUMP_BOOST, 40, 4);
+        AbilityHelper.msg(p, "🐸 Super Leap!", Formatting.GREEN);
     }
 }

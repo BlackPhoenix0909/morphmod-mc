@@ -1,14 +1,22 @@
 package com.morphmod.ability;
 
+import net.minecraft.entity.projectile.ArrowEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Vec3d;
 
 public class SkeletonAbility {
-    public static void tick(ServerPlayerEntity player) {
-        if (player.getServerWorld().isDay()
-                && !player.getServerWorld().isRaining()
-                && player.getServerWorld().isSkyVisible(player.getBlockPos())
-                && player.isAlive()) {
-            player.setOnFireFor(1);
+    public static void trigger(ServerPlayerEntity p) {
+        Vec3d look = p.getRotationVec(1.0f);
+        for (int i = 0; i < 5; i++) {
+            double spread = (Math.random() - 0.5) * 0.3;
+            ArrowEntity arrow = new ArrowEntity(p.getWorld(), p);
+            arrow.setVelocity(look.x + spread, look.y + spread * 0.5, look.z + spread, 3.0f, 0f);
+            arrow.setPos(p.getX(), p.getEyeY(), p.getZ());
+            p.getWorld().spawnEntity(arrow);
         }
+        AbilityHelper.msg(p, "🏹 Arrow Volley!", Formatting.WHITE);
     }
 }

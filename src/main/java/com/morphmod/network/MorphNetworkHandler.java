@@ -1,6 +1,7 @@
 package com.morphmod.network;
 
 import com.morphmod.MorphData;
+import com.morphmod.ability.MobAbilityRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
@@ -10,12 +11,14 @@ import net.minecraft.util.Identifier;
 import java.util.Set;
 
 public class MorphNetworkHandler {
-    public static final Identifier MORPH_UPDATE_PACKET  = new Identifier("morphmod", "morph_update");
-    public static final Identifier SYNC_MORPHS_PACKET   = new Identifier("morphmod", "sync_morphs");
-    public static final Identifier OPEN_GUI_PACKET      = new Identifier("morphmod", "open_gui");
-    public static final Identifier REQUEST_MORPH_PACKET = new Identifier("morphmod", "request_morph");
+    public static final Identifier MORPH_UPDATE_PACKET    = new Identifier("morphmod", "morph_update");
+    public static final Identifier SYNC_MORPHS_PACKET     = new Identifier("morphmod", "sync_morphs");
+    public static final Identifier OPEN_GUI_PACKET        = new Identifier("morphmod", "open_gui");
+    public static final Identifier REQUEST_MORPH_PACKET   = new Identifier("morphmod", "request_morph");
+    public static final Identifier USE_ABILITY_PACKET     = new Identifier("morphmod", "use_ability");
 
     public static void registerServerPackets() {
+        // Client requests a morph change
         ServerPlayNetworking.registerGlobalReceiver(REQUEST_MORPH_PACKET, (server, player, handler, buf, responseSender) -> {
             String morphId = buf.readString();
             server.execute(() -> {
@@ -33,6 +36,15 @@ public class MorphNetworkHandler {
                 }
             });
         });
+
+        // Client presses ability key
+        ServerPlayNetworking.registerGlobalReceiver(USE_ABILITY_PACKET, (server, player, handler, buf, responseSender) -> {
+            server.execute(() -> {
+                MorphData.getActiveMorphType(player.getUuid()).ifPresent(type -> {
+                    MobAbilityRegistry.triggerAbility(player, type);
+                });
+            });
+        });
     }
 
     public static void sendMorphUpdate(ServerPlayerEntity player, String morphId) {
@@ -48,9 +60,7 @@ public class MorphNetworkHandler {
         Set<String> morphs = MorphData.getUnlockedMorphs(player.getUuid());
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeInt(morphs.size());
-        for (String morph : morphs) {
-            buf.writeString(morph);
-        }
+        for (String morph : morphs) buf.writeString(morph);
         ServerPlayNetworking.send(player, SYNC_MORPHS_PACKET, buf);
     }
 

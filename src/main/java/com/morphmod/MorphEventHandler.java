@@ -5,7 +5,6 @@ import com.morphmod.network.MorphNetworkHandler;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityCombatEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -14,6 +13,7 @@ import net.minecraft.util.Formatting;
 public class MorphEventHandler {
 
     public static void register() {
+        // Mob töten → Morph freischalten
         ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register((world, entity, killedEntity) -> {
             if (entity instanceof ServerPlayerEntity player) {
                 EntityType<?> killedType = killedEntity.getType();
@@ -35,10 +35,10 @@ public class MorphEventHandler {
             }
         });
 
+        // Tick: nur Stats anwenden (Gesundheit etc.), keine Abilities auto-triggern
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 applyMorphStats(player);
-                MobAbilityRegistry.tickAbilities(player);
             }
         });
     }

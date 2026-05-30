@@ -13,7 +13,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashSet;
@@ -24,13 +23,14 @@ import java.util.UUID;
 public class MorphModClient implements ClientModInitializer {
 
     public static final Set<String> unlockedMorphs = new HashSet<>();
-    public static String activeMorph = null; // null = human
+    public static String activeMorph = null;
 
     private static KeyBinding morphMenuKey;
+    private static KeyBinding abilityKey;
 
     @Override
     public void onInitializeClient() {
-        // Register keybinding (default: M)
+        // M = Morph-Menü öffnen
         morphMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.morphmod.menu",
             InputUtil.Type.KEYSYM,
@@ -38,16 +38,34 @@ public class MorphModClient implements ClientModInitializer {
             "category.morphmod"
         ));
 
-        // Open GUI on key press
+        // R = Ability auslösen
+        abilityKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.morphmod.ability",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_R,
+            "category.morphmod"
+        ));
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            // Morph-Menü
             while (morphMenuKey.wasPressed()) {
                 if (client.currentScreen == null) {
                     client.setScreen(new MorphScreen());
                 }
             }
+            // Ability-Taste
+            while (abilityKey.wasPressed()) {
+                if (activeMorph != null && client.currentScreen == null) {
+                    // Paket an Server senden
+                    ClientPlayNetworking.send(
+                        MorphNetworkHandler.USE_ABILITY_PACKET,
+                        PacketByteBufs.empty()
+                    );
+                }
+            }
         });
 
-        // Receive morph update from server (for this player and others)
+        // Morph-Update vom Server empfangen
         ClientPlayNetworking.registerGlobalReceiver(MorphNetworkHandler.MORPH_UPDATE_PACKET, (client2, handler, buf, responseSender) -> {
             UUID playerUuid = buf.readUuid();
             String morphId = buf.readString();
@@ -60,7 +78,7 @@ public class MorphModClient implements ClientModInitializer {
             });
         });
 
-        // Receive full sync of unlocked morphs
+        // Freigeschaltete Morphs empfangen
         ClientPlayNetworking.registerGlobalReceiver(MorphNetworkHandler.SYNC_MORPHS_PACKET, (client2, handler, buf, responseSender) -> {
             int count = buf.readInt();
             Set<String> received = new HashSet<>();
@@ -71,13 +89,12 @@ public class MorphModClient implements ClientModInitializer {
             });
         });
 
-        // Server wants to open GUI
+        // Server öffnet GUI
         ClientPlayNetworking.registerGlobalReceiver(MorphNetworkHandler.OPEN_GUI_PACKET, (client2, handler, buf, responseSender) -> {
             client2.execute(() -> client2.setScreen(new MorphScreen()));
         });
     }
 
-    /** Send morph request to server */
     public static void requestMorph(String morphId) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(morphId != null ? morphId : "player");

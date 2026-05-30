@@ -1,1 +1,6 @@
-{"gui.morphmod.title":"Morph Selection","key.morphmod.menu":"Open Morph Menu","category.morphmod":"MorphMod"}
+{
+  "key.morphmod.menu": "Open Morph Menu",
+  "key.morphmod.ability": "Use Morph Ability",
+  "category.morphmod": "Morph Mod",
+  "gui.morphmod.title": "Morph Selection"
+}

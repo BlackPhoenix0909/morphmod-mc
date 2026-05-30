@@ -1,22 +1,19 @@
 package com.morphmod.ability;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.projectile.WitherSkullEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import java.util.*;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Vec3d;
 
-/** Wither: applies wither effect to nearby entities. */
 public class WitherAbility {
-    private static final Map<UUID, Integer> cooldowns = new HashMap<>();
-
-    public static void tick(ServerPlayerEntity player) {
-        UUID id = player.getUuid();
-        int cd = cooldowns.getOrDefault(id, 0);
-        if (cd > 0) { cooldowns.put(id, cd - 1); return; }
-        player.getServerWorld().getEntitiesByClass(LivingEntity.class,
-            player.getBoundingBox().expand(5), e -> e != player)
-            .forEach(e -> e.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 60, 1)));
-        cooldowns.put(id, 60);
+    public static void trigger(ServerPlayerEntity p) {
+        Vec3d look = p.getRotationVec(1.0f);
+        WitherSkullEntity skull = new WitherSkullEntity(
+            p.getWorld(), p,
+            look.x * 0.5, look.y * 0.5, look.z * 0.5
+        );
+        skull.setPos(p.getX() + look.x, p.getEyeY(), p.getZ() + look.z);
+        p.getWorld().spawnEntity(skull);
+        AbilityHelper.msg(p, "💀 Wither Skull!", Formatting.DARK_GRAY);
     }
 }

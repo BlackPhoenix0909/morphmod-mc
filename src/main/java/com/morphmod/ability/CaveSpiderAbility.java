@@ -9,13 +9,14 @@ import net.minecraft.util.math.Box;
 
 import java.util.List;
 
-public class BeeAbility {
+public class CaveSpiderAbility {
     public static void trigger(ServerPlayerEntity p) {
-        Box box = p.getBoundingBox().expand(3.0);
-        List<LivingEntity> targets = p.getWorld().getEntitiesByClass(LivingEntity.class, box, e -> e != p);
-        for (LivingEntity e : targets) {
-            e.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, 60, 0));
+        Box box = p.getBoundingBox().expand(4.0);
+        List<LivingEntity> nearby = p.getWorld().getEntitiesByClass(LivingEntity.class, box,
+            e -> e != p);
+        for (LivingEntity e : nearby) {
+            e.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, 100, 1));
         }
-        AbilityHelper.msg(p, "🐝 Sting!", Formatting.YELLOW);
+        AbilityHelper.msg(p, "☠ Poison aura!", Formatting.DARK_GREEN);
     }
 }
